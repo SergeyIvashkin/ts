@@ -1,10 +1,11 @@
 import { renderBlock } from "./lib.js";
+import { SearchFormData } from "./index.js";
 
-export function renderSearchFormBlock(toDay: string, lastDay: string): void {
+export function renderSearchFormBlock(searchForm: SearchFormData): void {
   renderBlock(
     "search-form-block",
     `
-    <form>
+    <form onsubmit="onSearch">
       <fieldset class="search-filedset">
         <div class="row">
           <div>
@@ -20,22 +21,69 @@ export function renderSearchFormBlock(toDay: string, lastDay: string): void {
         <div class="row">
           <div>
             <label for="check-in-date">Дата заезда</label>
-            <input id="check-in-date" type="date" value="${toDay}" min="${toDay}" max="${lastDay}" name="checkin" />
+            <input id="check-in-date" type="date" value="${searchForm.toDay}" min="${searchForm.toDay}" max="${searchForm.lastDay}" name="checkin" />
           </div>
           <div>
             <label for="check-out-date">Дата выезда</label>
-            <input id="check-out-date" type="date" value="${toDay}" min="${toDay}" max="${lastDay}" name="checkout" />
+            <input id="check-out-date" type="date" value="${searchForm.lastDay}" min="${searchForm.toDay}" max="${searchForm.lastDay}" name="checkout" />
           </div>
           <div>
             <label for="max-price">Макс. цена суток</label>
             <input id="max-price" type="text" value="" name="price" class="max-price" />
           </div>
           <div>
-            <div><button>Найти</button></div>
+            <div><button type="submit" id="button">Найти</button></div>
           </div>
         </div>
       </fieldset>
     </form>
     `
   );
+
+  interface Place {
+    arrEmpty: string[];
+  }
+
+  const employee: Place = {
+    arrEmpty: [],
+  };
+
+  const button = document.getElementById("button");
+
+  if (button != null) {
+    button.onclick = function (e): void {
+      e.preventDefault();
+      const inpToDay = <HTMLInputElement>(
+        document.querySelector("#check-in-date")
+      );
+      const inpLastDay = <HTMLInputElement>(
+        document.querySelector("#check-out-date")
+      );
+
+      const searchFormData: SearchFormData = {
+        toDay: inpToDay.value,
+        lastDay: inpLastDay.value,
+      };
+      search(searchFormData, (arrEmpty: Place, error: string) => {
+        setTimeout(() => {
+          const randNum = Math.floor(Math.random() * (10 - 1 + 1) + 1);
+          console.log(randNum);
+
+          if (randNum % 2 === 0) {
+            console.log("yes", arrEmpty);
+          } else {
+            console.log("no", error);
+          }
+        }, 3000);
+      });
+
+      function search(form: SearchFormData, printCb) {
+        console.log(form);
+        const res = printCb(employee, "error");
+        if (res != undefined) {
+          console.log(res);
+        }
+      }
+    };
+  }
 }
